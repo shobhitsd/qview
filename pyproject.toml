@@ -10,10 +10,10 @@ authors = [
 ]
 description = "Enterprise Post-Quantum Cryptography (PQC) Discovery, CBOM Generation & Quantum Risk Governance Platform"
 readme = "README.md"
+license = "Apache-2.0"
 requires-python = ">=3.9"
 classifiers = [
     "Programming Language :: Python :: 3",
-    "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Topic :: Security :: Cryptography",
     "Intended Audience :: Information Technology",
@@ -31,6 +31,10 @@ dev = [
 
 [project.scripts]
 qview = "cli:main"
+
+[tool.setuptools.packages.find]
+include = ["core*", "scanners*"]
+exclude = ["api*", "web*", "public*", "sample_data*", "tests*"]
 
 [tool.pytest.ini_options]
 testpaths = ["."]
