@@ -106,7 +106,7 @@ class CodeScanner(BaseScanner):
         {
             "id": "RULE-PY-RSA-GEN",
             "lang": "python",
-            "pattern": r'(?:rsa\.generate_private_key|RSA\.generate)\s*\(\s*(?:key_size\s*=\s*)?(\d+)',
+            "pattern": r'(?:rsa\.generate_private_key|RSA\.generate)\s*\([^)]*?(?:key_size\s*=\s*)?(\d{3,5})',
             "algo_extractor": lambda m: f"RSA-{m.group(1)}",
             "library_extractor": lambda m: "cryptography.hazmat / PyCryptodome",
             "primitive": "key-establishment",
@@ -124,6 +124,28 @@ class CodeScanner(BaseScanner):
             "default_key_size": 256,
             "confidence": 0.99,
             "description": "Python Elliptic Curve Key Generation (Vulnerable to Shor's algorithm)"
+        },
+        {
+            "id": "RULE-PY-LEGACY-CIPHER",
+            "lang": "python",
+            "pattern": r'(Blowfish|DES3|DES|ARC4|RC4)\.new\s*\(',
+            "algo_extractor": lambda m: m.group(1).upper(),
+            "library_extractor": lambda m: "PyCryptodome / PyCrypto",
+            "primitive": "symmetric-encryption",
+            "default_key_size": 64,
+            "confidence": 0.99,
+            "description": "Python Legacy Insecure Symmetric Cipher (Broken classically & vulnerable to Grover)"
+        },
+        {
+            "id": "RULE-PY-HASH-PRIMITIVE",
+            "lang": "python",
+            "pattern": r'hashes\.(MD5|SHA1|SHA224)\s*\(\s*\)',
+            "algo_extractor": lambda m: m.group(1).upper(),
+            "library_extractor": lambda m: "cryptography.hazmat.primitives.hashes",
+            "primitive": "hash",
+            "default_key_size": 0,
+            "confidence": 0.99,
+            "description": "Python deprecated/weak message digest algorithm"
         },
         {
             "id": "RULE-PY-X25519",
@@ -157,6 +179,17 @@ class CodeScanner(BaseScanner):
             "default_key_size": 256,
             "confidence": 0.99,
             "description": "Python liboqs Post-Quantum Cryptography instance"
+        },
+        {
+            "id": "RULE-PQC-HYBRID-SUITE",
+            "lang": "all",
+            "pattern": r'["\'](X25519Kyber768[^"\']*|ECDH-P256-ML-KEM-[^"\']*|ML-KEM-[^"\']*|ML-DSA-[^"\']*|SLH-DSA-[^"\']*|FrodoKEM[^"\']*)["\']',
+            "algo_extractor": lambda m: m.group(1),
+            "library_extractor": lambda m: "Post-Quantum / Hybrid Suite",
+            "primitive": "pqc",
+            "default_key_size": 256,
+            "confidence": 0.96,
+            "description": "Post-Quantum Cryptography or Hybrid Key Exchange Suite definition"
         },
 
         # ==================== JAVASCRIPT / TYPESCRIPT RULES ====================
@@ -216,6 +249,17 @@ class CodeScanner(BaseScanner):
             "default_key_size": 256,
             "confidence": 0.99,
             "description": "Go crypto/ecdsa Key Generation"
+        },
+        {
+            "id": "RULE-GO-3DES",
+            "lang": "go",
+            "pattern": r'des\.New(?:Triple)?DESCipher\s*\(',
+            "algo_extractor": lambda m: "3DES",
+            "library_extractor": lambda m: "crypto/des",
+            "primitive": "symmetric-encryption",
+            "default_key_size": 168,
+            "confidence": 0.99,
+            "description": "Go crypto/des TripleDES legacy cipher"
         },
 
         # ==================== C / C++ / OPENSSL RULES ====================
