@@ -249,6 +249,12 @@ class QViewHandler(http.server.SimpleHTTPRequestHandler):
         self.wfile.write(body)
 
 
+# ── Top-level exports for Vercel Serverless Python Runtime ───────────────
+handler = QViewHandler
+app = QViewHandler
+application = QViewHandler
+
+
 def run_server(port: int = PORT):
     os.chdir(BASE_DIR)  # Ensure relative paths resolve correctly
     with socketserver.ThreadingTCPServer(("", port), QViewHandler) as httpd:
