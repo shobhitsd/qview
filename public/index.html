@@ -781,65 +781,346 @@
       <div class="guide-modal-title-group">
         <div class="guide-icon-badge">📖</div>
         <div>
-          <h2 class="guide-modal-title">QView Quantum Readiness User Guide</h2>
-          <p class="guide-modal-sub">Enterprise Handbook: Discovery, Scoring Models, Mosca's Inequality, and PQC Migration</p>
+          <h2 class="guide-modal-title">QView Quantum Readiness — Complete User Guide</h2>
+          <p class="guide-modal-sub">Step-by-step: How to scan, read scores, and navigate every tab of the platform</p>
         </div>
       </div>
       <button class="modal-close-btn" id="btnCloseGuide">✕</button>
     </div>
 
-    <div class="guide-modal-body">
-      
-      <div class="guide-section">
-        <h3>1. What is QView & CBOM?</h3>
-        <p>QView is an enterprise Cryptographic Bill of Materials (CBOM) and Quantum Readiness platform. It performs deterministic static code analysis, certificate audits, dependency checks, and network protocol discovery to identify quantum-vulnerable cryptography (RSA, ECC, Diffie-Hellman) without LLM hallucinations.</p>
-      </div>
-
-      <div class="guide-section">
-        <h3>2. Understanding the 3 Core Quantitative Indices</h3>
-        <div class="guide-cards-row">
-          <div class="guide-mini-card">
-            <div class="g-card-title text-success">QRI (Quantum Readiness Index)</div>
-            <p>A <strong>0 - 100</strong> composite readiness score. Measures your organization's transition progress across 8 weighted dimensions, multiplied by your scan coverage factor ($QRI = Base \times Coverage$). Higher is better (Target: 90+).</p>
-          </div>
-          <div class="guide-mini-card">
-            <div class="g-card-title text-danger">QEI (Quantum Exposure Index)</div>
-            <p>A <strong>0 - 100</strong> cumulative attack surface score. Measures asset vulnerability to Shor's and Grover's algorithms, data confidentiality lifetime, and business criticality. Lower is better (Target: &lt;20).</p>
-          </div>
-          <div class="guide-mini-card">
-            <div class="g-card-title text-primary">CAI (Crypto Agility Index)</div>
-            <p>A <strong>0 - 100</strong> agility score. Assesses how easily your cryptographic code can be updated without major architectural rewrites. Penalizes hardcoding and rewards provider abstraction.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="guide-section">
-        <h3>3. Mosca's Inequality & HNDL Risk</h3>
-        <p>Mosca's theorem dictates that if $X + Y > Z$, an organization is vulnerable to <strong>Harvest Now, Decrypt Later (HNDL)</strong> attacks today:</p>
-        <ul class="guide-bullet-list">
-          <li><strong>X (Data Shelf-Life):</strong> How long your sensitive data (EHR, PCI, PII, intellectual property) must remain confidential.</li>
-          <li><strong>Y (Migration Time):</strong> The estimated years required to re-engineer, test, and deploy PQC across all systems.</li>
-          <li><strong>Z (Time to Quantum Threat):</strong> The estimated years until Cryptographically Relevant Quantum Computers (CRQCs) emerge (typically 7 years).</li>
-        </ul>
-      </div>
-
-      <div class="guide-section">
-        <h3>4. Navigating the 7 Platform Views</h3>
-        <div class="guide-views-list">
-          <div><strong>1. Executive Overview:</strong> High-level CISO telemetry, animated score gauges, 8-dimension spider radar chart, and real-time Mosca risk simulator.</div>
-          <div><strong>2. Crypto Universe:</strong> Searchable cryptographic inventory with key sizes, locations, and direct CSV export.</div>
-          <div><strong>3. Quantum Heatmap:</strong> 4x4 matrix plotting business criticality against quantum exposure with instant cell drill-down.</div>
-          <div><strong>4. Compliance Radar:</strong> Real-time breach mapping for NIST SP 800-131A, HIPAA, PCI-DSS 4.0, SEBI CSCRF, and CNSA 2.0.</div>
-          <div><strong>5. Migration Cockpit:</strong> NIST FIPS 203/204/205 Wave 0–4 transition roadmap with step-by-step code playbooks.</div>
-          <div><strong>6. Knowledge Graph:</strong> Interactive 2D network canvas visualizing cryptographic dependencies.</div>
-          <div><strong>7. Evidence Center:</strong> IDE-style source code viewer with line provenance and AST semantic verification.</div>
-        </div>
-      </div>
-
+    <!-- Tab Navigation inside Guide -->
+    <div class="guide-tab-nav">
+      <button class="guide-tab-btn active" data-guide-tab="getting-started">🚀 Getting Started</button>
+      <button class="guide-tab-btn" data-guide-tab="inputs">📂 Inputs &amp; Scanning</button>
+      <button class="guide-tab-btn" data-guide-tab="tabs">🗂 All Tabs</button>
+      <button class="guide-tab-btn" data-guide-tab="scores">📊 Scores &amp; Maths</button>
+      <button class="guide-tab-btn" data-guide-tab="tips">💡 Tips &amp; Shortcuts</button>
     </div>
 
+    <div class="guide-modal-body">
+
+      <!-- GETTING STARTED -->
+      <div class="guide-panel active" id="guide-getting-started">
+
+        <div class="guide-section guide-hero-section">
+          <div class="guide-hero-icon">🔐</div>
+          <h3>Welcome to QView — Your Quantum Cryptography Intelligence Platform</h3>
+          <p>QView scans your codebase, certificates, and dependency files to find every piece of cryptography that is vulnerable to future quantum computers — and tells you exactly how to fix it, with zero hallucinations.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>⚡ Quick Start in 3 Steps</h3>
+          <div class="guide-steps-list">
+            <div class="guide-step">
+              <div class="guide-step-num">1</div>
+              <div class="guide-step-body">
+                <div class="guide-step-title">Point to Your Code</div>
+                <p>In the <strong>Scan Target</strong> bar at the top of the page, type the folder path containing your code. On a local server, this is a path on the machine running QView — for example <code>sample_data</code> (the built-in demo), <code>C:/myproject</code>, or a relative path like <code>../my-service</code>.</p>
+                <div class="guide-callout guide-callout-info">💡 Not running locally? The deployed version loads a pre-scanned <strong>demo dataset</strong> automatically — no path needed. Just click <strong>Run Scan</strong> to re-run the demo.</div>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-num">2</div>
+              <div class="guide-step-body">
+                <div class="guide-step-title">Click "Run Scan"</div>
+                <p>Press the blue <strong>Run Scan</strong> button in the top-right. A progress bar appears. QView will scan every <code>.py</code>, <code>.js</code>, <code>.ts</code>, <code>.go</code>, <code>.java</code>, <code>.pem</code>, <code>.cer</code>, <code>requirements.txt</code>, <code>package.json</code>, <code>pom.xml</code>, <code>build.gradle</code>, and YAML file it finds and extract every cryptographic primitive, key size, and library reference.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-num">3</div>
+              <div class="guide-step-body">
+                <div class="guide-step-title">Explore Your Results</div>
+                <p>After scanning, all 7 tabs are populated with live data. Start with <strong>Executive Overview</strong> to see your organisation's top-line risk scores, then dive into <strong>Crypto Universe</strong> to see individual findings.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h3>🏗 Platform Architecture at a Glance</h3>
+          <div class="guide-arch-grid">
+            <div class="guide-arch-box">
+              <div class="arch-icon">🔍</div>
+              <div class="arch-label">Scanner Engine</div>
+              <div class="arch-desc">Regex + AST static analysis across 12 file types</div>
+            </div>
+            <div class="guide-arch-box">
+              <div class="arch-icon">🧮</div>
+              <div class="arch-label">Risk Scoring</div>
+              <div class="arch-desc">Shor / Grover algorithm models, Mosca theorem</div>
+            </div>
+            <div class="guide-arch-box">
+              <div class="arch-icon">📋</div>
+              <div class="arch-label">CBOM Generation</div>
+              <div class="arch-desc">CycloneDX 1.6 compliant cryptographic BOM export</div>
+            </div>
+            <div class="guide-arch-box">
+              <div class="arch-icon">🗺</div>
+              <div class="arch-label">Migration Playbooks</div>
+              <div class="arch-desc">NIST FIPS 203/204/205 PQC code replacements</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- INPUTS & SCANNING -->
+      <div class="guide-panel" id="guide-inputs">
+
+        <div class="guide-section">
+          <h3>📂 What Can You Scan?</h3>
+          <p>QView supports a wide range of input types. The scanner engine automatically detects file types and applies the correct extraction rules.</p>
+
+          <div class="guide-input-table-wrap">
+            <table class="guide-table">
+              <thead>
+                <tr><th>Input Type</th><th>Supported Files</th><th>What Gets Detected</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>🐍 Python</td><td><code>.py</code></td><td>PyCryptodome, cryptography, hashlib, ssl, AES, RSA, ECC key generation</td></tr>
+                <tr><td>☕ Java</td><td><code>.java</code></td><td>JCA/JCE KeyPairGenerator, Cipher.getInstance(), MessageDigest, KeyStore</td></tr>
+                <tr><td>🌐 JS / TS</td><td><code>.js</code>, <code>.ts</code></td><td>Web Crypto API, node:crypto, forge, jose library calls</td></tr>
+                <tr><td>🐹 Go</td><td><code>.go</code></td><td>crypto/rsa, crypto/elliptic, crypto/tls, golang.org/x/crypto imports</td></tr>
+                <tr><td>🦀 Rust</td><td><code>.rs</code></td><td>ring, openssl, rustls crate usage</td></tr>
+                <tr><td>📜 Certificates</td><td><code>.pem</code>, <code>.cer</code>, <code>.crt</code>, <code>.der</code></td><td>Public key algorithm, key size, signature algorithm, validity, issuer</td></tr>
+                <tr><td>📦 Python Deps</td><td><code>requirements.txt</code>, <code>Pipfile</code></td><td>cryptography, pycryptodome, PyNaCl versions</td></tr>
+                <tr><td>📦 JS Deps</td><td><code>package.json</code></td><td>node-forge, crypto-js, openpgp, jose, elliptic packages</td></tr>
+                <tr><td>📦 Java Deps</td><td><code>pom.xml</code>, <code>build.gradle</code></td><td>BouncyCastle, nimbus-jose-jwt, spring-security-crypto</td></tr>
+                <tr><td>☸ Kubernetes / YAML</td><td><code>.yaml</code>, <code>.yml</code></td><td>TLS cipher suites in config maps</td></tr>
+                <tr><td>🐳 Docker</td><td><code>Dockerfile</code>, <code>.env</code></td><td>Hardcoded key material patterns, SSL env vars</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h3>🖊 How to Enter the Scan Path</h3>
+          <div class="guide-steps-list">
+            <div class="guide-step">
+              <div class="guide-step-num">A</div>
+              <div class="guide-step-body">
+                <div class="guide-step-title">Using the demo (default)</div>
+                <p>The field is pre-filled with <code>sample_data</code>. Click <strong>Scan</strong> to analyse QView's built-in polyglot test suite covering Java, Python, Go, TypeScript, certificates, and dependency files.</p>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-num">B</div>
+              <div class="guide-step-body">
+                <div class="guide-step-title">Scanning your own project (local deployment)</div>
+                <p>Replace the path with an absolute or relative folder path on the machine hosting QView. Examples:</p>
+                <ul class="guide-bullet-list">
+                  <li><code>C:/Users/you/projects/my-app</code> — Windows absolute path</li>
+                  <li><code>/home/user/services/payment-api</code> — Linux / macOS absolute path</li>
+                  <li><code>../my-microservice</code> — relative to QView's root directory</li>
+                </ul>
+                <div class="guide-callout guide-callout-warning">⚠️ On the Vercel-hosted demo, only the built-in <code>sample_data</code> folder is available. To scan your own code, run QView locally: <code>git clone https://github.com/shobhitsd/qview &amp;&amp; python server.py</code></div>
+              </div>
+            </div>
+            <div class="guide-step">
+              <div class="guide-step-num">C</div>
+              <div class="guide-step-body">
+                <div class="guide-step-title">Re-running a scan</div>
+                <p>You can run as many scans as you like. Each scan refreshes all 7 tabs with the new results. Use the <strong>Scan</strong> button next to the path field or the <strong>Run Scan</strong> button in the header.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h3>📤 Exporting Results</h3>
+          <ul class="guide-bullet-list">
+            <li><strong>Export CBOM</strong> (header button) — Downloads a <code>cbom.json</code> file in the CycloneDX 1.6 schema. Accepted by Dependency-Track, NIST SBOM tools, and supply-chain risk platforms.</li>
+            <li><strong>CSV Export</strong> (inside Crypto Universe tab) — Downloads all discovered assets as a spreadsheet for Excel or Google Sheets.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- ALL TABS -->
+      <div class="guide-panel" id="guide-tabs">
+
+        <div class="guide-section">
+          <h3>Tab 1 — Executive Overview</h3>
+          <p>Your <strong>CISO-level command centre</strong> for the organisation's overall risk posture at a glance.</p>
+          <ul class="guide-bullet-list">
+            <li><strong>Score Gauges</strong> — Three animated circular gauges show QRI, QEI, and CAI. Hover any gauge for a tooltip. QRI and CAI should be high; QEI should be low.</li>
+            <li><strong>Radar Chart</strong> — 8-axis spider chart breaks QRI into sub-dimensions: Discovery Completeness, Algorithm Compliance, Key Strength, Agility, Certificate Health, Dependency Security, Protocol Hardness, and Mosca Safety.</li>
+            <li><strong>Mosca Simulator</strong> — Drag the X, Y, Z sliders. A red <em>VIOLATION</em> badge appears if X+Y &gt; Z. This shows whether your organisation is already HNDL-vulnerable.</li>
+            <li><strong>Summary Cards</strong> — Asset counts, vulnerability counts, critical P1 findings, and compliance status at a glance.</li>
+          </ul>
+        </div>
+
+        <div class="guide-section">
+          <h3>Tab 2 — Crypto Universe</h3>
+          <p>A <strong>full searchable inventory</strong> of every cryptographic asset found in your scan.</p>
+          <ul class="guide-bullet-list">
+            <li><strong>Search box</strong> — Type any algorithm name (e.g. <code>RSA</code>, <code>AES</code>, <code>SHA-1</code>), file name, or library to filter instantly.</li>
+            <li><strong>Filter buttons</strong> — Switch between "All", "Vulnerable", "Safe", "Certificates" to narrow the view.</li>
+            <li><strong>Asset cards</strong> — Show algorithm, key size, file path, line number, risk badge, and the library/API used. Click any card to jump to the Evidence Center.</li>
+            <li><strong>Risk badge colours:</strong> 🔴 Critical P1 · 🟠 High · 🟡 Moderate · 🟢 Safe.</li>
+            <li><strong>Export CSV</strong> — Downloads all assets as a spreadsheet.</li>
+          </ul>
+        </div>
+
+        <div class="guide-section">
+          <h3>Tab 3 — Quantum Heatmap</h3>
+          <p>A <strong>4×4 risk matrix</strong> plotting Business Criticality (vertical) against Quantum Exposure (horizontal).</p>
+          <ul class="guide-bullet-list">
+            <li>Top-right quadrant (high criticality, high exposure) = most urgent P1 priorities.</li>
+            <li>Click any coloured cell to see which assets fall in that quadrant.</li>
+            <li>Dark red = Critical P1, Orange = High, Yellow = Moderate, Green = Safe.</li>
+          </ul>
+        </div>
+
+        <div class="guide-section">
+          <h3>Tab 4 — Compliance Radar</h3>
+          <p>Shows how your cryptography stacks up against <strong>5 major regulatory frameworks</strong>: NIST SP 800-131A, HIPAA, PCI-DSS 4.0, SEBI CSCRF, and CNSA 2.0. Red rows = active violations. Click any row to see the offending assets in the Evidence Center.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>Tab 5 — Migration Cockpit</h3>
+          <p>Step-by-step <strong>NIST FIPS PQC transition roadmap</strong> in 5 waves: Wave 0 (broken algorithms), Wave 1 (long-lived data), Wave 2 (hybrid PQC), Wave 3 (full PQC deployment), Wave 4 (crypto-agility automation). Each wave includes copy-paste code playbooks in your detected language.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>Tab 6 — Knowledge Graph</h3>
+          <p>Interactive network diagram of cryptographic dependencies. <strong>Drag nodes</strong> to reposition · <strong>Drag background</strong> to pan · <strong>Scroll wheel</strong> or <kbd>+</kbd>/<kbd>-</kbd> buttons to zoom · <kbd>0</kbd> to reset. Blue = files, Orange = algorithms, Green = libraries, Purple = assets.</p>
+        </div>
+
+        <div class="guide-section">
+          <h3>Tab 7 — Evidence Center</h3>
+          <p>IDE-style source code viewer with deterministic evidence. <strong>Open it</strong> by clicking any asset card (Crypto Universe) or any heatmap cell. The left sidebar lists all findings by severity. Clicking a finding shows the exact source line, risk analysis (Shor's feasibility, Grover speedup), and a copy-paste PQC remediation snippet.</p>
+        </div>
+
+      </div>
+
+      <!-- SCORES -->
+      <div class="guide-panel" id="guide-scores">
+
+        <div class="guide-section">
+          <h3>📊 The 3 Core Quantitative Scores</h3>
+          <div class="guide-cards-row">
+            <div class="guide-mini-card">
+              <div class="g-card-title text-success">QRI — Quantum Readiness Index</div>
+              <p>Range: <strong>0–100</strong> · Higher = better · Target: <strong>90+</strong></p>
+              <p>Formula: <code>QRI = BaseScore × CoverageFactor</code>. BaseScore = weighted average of 8 sub-dimensions. CoverageFactor scales down scores for incomplete scans.</p>
+            </div>
+            <div class="guide-mini-card">
+              <div class="g-card-title text-danger">QEI — Quantum Exposure Index</div>
+              <p>Range: <strong>0–100</strong> · Lower = safer · Target: <strong>&lt;20</strong></p>
+              <p>Penalised by RSA/ECC key sizes (Shor's breakability), short hash digests (Grover speedup), data classification weight (HIPAA/PCI), and business criticality.</p>
+            </div>
+            <div class="guide-mini-card">
+              <div class="g-card-title text-primary">CAI — Crypto Agility Index</div>
+              <p>Range: <strong>0–100</strong> · Higher = more agile · Target: <strong>70+</strong></p>
+              <p>Rewards algorithm provider abstraction, configurable key sizes, factory patterns. Penalises hardcoded algorithm strings and inline key generation.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h3>⚖️ Mosca's Inequality</h3>
+          <div class="guide-mosca-formula">
+            <span class="formula-x">X</span>
+            <span class="formula-op">+</span>
+            <span class="formula-y">Y</span>
+            <span class="formula-op">&gt;</span>
+            <span class="formula-z">Z</span>
+            <span class="formula-label">⟹ HNDL Vulnerable NOW</span>
+          </div>
+          <ul class="guide-bullet-list">
+            <li><strong>X — Data Shelf-Life</strong>: Years your sensitive data must stay confidential. Medical records = 25 yrs, PAN card = 15 yrs.</li>
+            <li><strong>Y — Migration Time</strong>: Years to re-engineer, test, certify, and deploy PQC across your estate. Large enterprises: 5–8 yrs.</li>
+            <li><strong>Z — Time to Quantum Threat</strong>: Consensus estimate for a CRQC breaking 2048-bit RSA. Default: 7 years (conservative).</li>
+          </ul>
+          <div class="guide-callout guide-callout-info">💡 Example: EHR system with X=20 (medical shelf-life), Y=5 (migration), Z=7 (quantum timeline) → 20+5=25 &gt; 7 → HNDL Vulnerable. Start migrating NOW.</div>
+        </div>
+
+        <div class="guide-section">
+          <h3>🔴 Risk Levels</h3>
+          <table class="guide-table">
+            <thead><tr><th>Badge</th><th>Level</th><th>Meaning</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td>🔴 P1</td><td>Critical</td><td>Directly breakable by Shor's algorithm (RSA-1024, ECC-160)</td><td>Migrate immediately — Wave 0/1</td></tr>
+              <tr><td>🟠</td><td>High</td><td>Quantum-vulnerable (RSA-2048, AES-128 Grover-halved to 64-bit)</td><td>Plan migration — Wave 1/2</td></tr>
+              <tr><td>🟡</td><td>Moderate</td><td>Compliant now but needs upgrading post-quantum (AES-192, SHA-256)</td><td>Monitor — Wave 3</td></tr>
+              <tr><td>🟢</td><td>Safe</td><td>PQC-ready (AES-256, SHA-384, ML-KEM, ML-DSA, SPHINCS+)</td><td>No action needed</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+
+      <!-- TIPS -->
+      <div class="guide-panel" id="guide-tips">
+
+        <div class="guide-section">
+          <h3>⌨️ Keyboard Shortcuts</h3>
+          <table class="guide-table">
+            <thead><tr><th>Key</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr><td><kbd>+</kbd></td><td>Zoom in on Knowledge Graph</td></tr>
+              <tr><td><kbd>-</kbd></td><td>Zoom out on Knowledge Graph</td></tr>
+              <tr><td><kbd>0</kbd></td><td>Reset Knowledge Graph zoom to fit</td></tr>
+              <tr><td><kbd>Esc</kbd></td><td>Close any open modal or overlay</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="guide-section">
+          <h3>💡 Power User Tips</h3>
+          <ul class="guide-bullet-list">
+            <li><strong>Filter Critical P1</strong> in Crypto Universe to see only your most urgent Wave 0 targets.</li>
+            <li><strong>Heatmap top-right corner</strong> (High Criticality + High Exposure) = immediate action zone. Export to CSV and share with your dev team.</li>
+            <li><strong>Knowledge Graph dense clusters</strong> = files with many crypto calls — prime candidates for a crypto-agility wrapper refactor.</li>
+            <li><strong>Re-scan after changes</strong> to see QRI improve and QEI drop in real time.</li>
+            <li><strong>CBOM export</strong> integrates with Dependency-Track, Grype, and NIST SBOM tools for supply-chain risk management.</li>
+            <li><strong>Compliance Radar</strong> — click a red row to jump directly to the Evidence Center for the offending asset.</li>
+          </ul>
+        </div>
+
+        <div class="guide-section">
+          <h3>🌐 Running Locally vs Deployed</h3>
+          <table class="guide-table">
+            <thead><tr><th>Feature</th><th>Local (Python server)</th><th>Vercel Deployment</th></tr></thead>
+            <tbody>
+              <tr><td>Scan your own code</td><td>✅ Full path access</td><td>❌ Demo data only</td></tr>
+              <tr><td>Live re-scanning</td><td>✅ Real-time</td><td>✅ Demo re-scan</td></tr>
+              <tr><td>CBOM &amp; CSV Export</td><td>✅</td><td>✅</td></tr>
+              <tr><td>All 7 tabs + Knowledge Graph</td><td>✅</td><td>✅</td></tr>
+            </tbody>
+          </table>
+          <div class="guide-callout guide-callout-info">
+            💡 To scan your own project locally:<br>
+            <code>git clone https://github.com/shobhitsd/qview.git</code><br>
+            <code>cd qview &amp;&amp; python server.py</code><br>
+            Then open <strong>http://localhost:8765</strong> and enter your project folder path in the Scan Target bar.
+          </div>
+        </div>
+
+        <div class="guide-section">
+          <h3>📞 Support &amp; Contributing</h3>
+          <ul class="guide-bullet-list">
+            <li>📂 GitHub: <a href="https://github.com/shobhitsd/qview" target="_blank" rel="noopener">github.com/shobhitsd/qview</a></li>
+            <li>🐛 Bugs? Open a GitHub issue with your scan path type and the browser console output.</li>
+            <li>🤝 Add a new language scanner by extending <code>scanners/code_scanner.py</code> and opening a PR.</li>
+          </ul>
+        </div>
+
+      </div>
+
+    </div><!-- end guide-modal-body -->
+
     <div class="guide-modal-footer">
-      <button class="btn btn-primary" id="btnGuideGotIt">Got it, Let's Start</button>
+      <button class="btn btn-outline" id="btnGuidePrev">← Previous</button>
+      <div class="guide-page-dots" id="guidePageDots">
+        <span class="guide-dot active" data-guide-tab="getting-started"></span>
+        <span class="guide-dot" data-guide-tab="inputs"></span>
+        <span class="guide-dot" data-guide-tab="tabs"></span>
+        <span class="guide-dot" data-guide-tab="scores"></span>
+        <span class="guide-dot" data-guide-tab="tips"></span>
+      </div>
+      <button class="btn btn-primary" id="btnGuideNext">Next →</button>
     </div>
   </div>
 </div>

@@ -1531,4 +1531,85 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load telemetry
   fetchAssessment();
+
+  // ── User Guide Modal with tabbed navigation ──────────────────────────────
+  const GUIDE_TABS = ['getting-started', 'inputs', 'tabs', 'scores', 'tips'];
+  let guideTabIdx = 0;
+
+  function switchGuideTab(tabKey) {
+    guideTabIdx = GUIDE_TABS.indexOf(tabKey);
+    if (guideTabIdx < 0) guideTabIdx = 0;
+
+    // Update tab buttons
+    document.querySelectorAll('.guide-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.guideTab === GUIDE_TABS[guideTabIdx]);
+    });
+
+    // Update panels
+    document.querySelectorAll('.guide-panel').forEach(panel => {
+      panel.classList.toggle('active', panel.id === 'guide-' + GUIDE_TABS[guideTabIdx]);
+    });
+
+    // Update dots
+    document.querySelectorAll('.guide-dot').forEach(dot => {
+      dot.classList.toggle('active', dot.dataset.guideTab === GUIDE_TABS[guideTabIdx]);
+    });
+
+    // Update prev/next buttons
+    const prevBtn = btnGuidePrev;
+    const nextBtn = btnGuideNext;
+    if (prevBtn) prevBtn.disabled = guideTabIdx === 0;
+    if (nextBtn) {
+      nextBtn.textContent = guideTabIdx === GUIDE_TABS.length - 1 ? "Let's Start!" : "Next →";
+    }
+  }
+
+  // Open guide
+  btnOpenGuide?.addEventListener('click', () => {
+    const modal = guideModal;
+    if (modal) { modal.style.display = 'flex'; switchGuideTab(GUIDE_TABS[guideTabIdx]); }
+  });
+
+  // Close guide
+  function closeGuide() {
+    const modal = guideModal;
+    if (modal) modal.style.display = 'none';
+  }
+  btnCloseGuide?.addEventListener('click', closeGuide);
+  guideModal?.addEventListener('click', e => { if (e.target.id === 'guideModal') closeGuide(); });
+
+  // Next button
+  btnGuideNext?.addEventListener('click', () => {
+    if (guideTabIdx >= GUIDE_TABS.length - 1) { closeGuide(); return; }
+    switchGuideTab(GUIDE_TABS[guideTabIdx + 1]);
+  });
+
+  // Prev button
+  btnGuidePrev?.addEventListener('click', () => {
+    if (guideTabIdx > 0) switchGuideTab(GUIDE_TABS[guideTabIdx - 1]);
+  });
+
+  // Tab button clicks
+  document.querySelectorAll('.guide-tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => switchGuideTab(btn.dataset.guideTab));
+  });
+
+  // Dot clicks
+  document.querySelectorAll('.guide-dot').forEach(dot => {
+    dot.addEventListener('click', () => switchGuideTab(dot.dataset.guideTab));
+  });
+
+  // Esc closes guide
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && guideModal?.style.display !== 'none') closeGuide();
+  });
+
+  // Auto-show guide on first visit
+  if (!localStorage.getItem('qview_guide_seen')) {
+    setTimeout(() => {
+      const modal = guideModal;
+      if (modal) { modal.style.display = 'flex'; switchGuideTab('getting-started'); }
+      localStorage.setItem('qview_guide_seen', '1');
+    }, 2200);
+  }
 });
