@@ -1612,4 +1612,128 @@ document.addEventListener('DOMContentLoaded', () => {
       localStorage.setItem('qview_guide_seen', '1');
     }, 2200);
   }
+
+  // ══════════════════════ AI Quantum Copilot (V1 Agent 37) ══════════════════
+  const copilotModal = document.getElementById('copilotModal');
+  const btnOpenCopilot = document.getElementById('btnOpenCopilot');
+  const btnCloseCopilot = document.getElementById('btnCloseCopilot');
+  const copilotForm = document.getElementById('copilotForm');
+  const copilotInput = document.getElementById('copilotInput');
+  const copilotBody = document.getElementById('copilotBody');
+
+  function openCopilot() {
+    if (copilotModal) {
+      copilotModal.style.display = 'flex';
+      setTimeout(() => copilotInput?.focus(), 100);
+    }
+  }
+
+  function closeCopilot() {
+    if (copilotModal) copilotModal.style.display = 'none';
+  }
+
+  btnOpenCopilot?.addEventListener('click', openCopilot);
+  btnCloseCopilot?.addEventListener('click', closeCopilot);
+  copilotModal?.addEventListener('click', e => { if (e.target.id === 'copilotModal') closeCopilot(); });
+
+  // Prompt chip click triggers query immediately
+  document.querySelectorAll('.prompt-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const query = chip.dataset.query;
+      if (query) {
+        if (copilotInput) copilotInput.value = query;
+        executeCopilotQuery(query);
+      }
+    });
+  });
+
+  copilotForm?.addEventListener('submit', e => {
+    e.preventDefault();
+    const query = (copilotInput?.value || '').trim();
+    if (!query) return;
+    executeCopilotQuery(query);
+  });
+
+  async function executeCopilotQuery(queryText) {
+    if (!copilotBody) return;
+
+    // Append User Message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'copilot-message-user';
+    userMsg.textContent = queryText;
+    copilotBody.appendChild(userMsg);
+
+    // Append Loading State
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'copilot-message-ai';
+    loadingMsg.innerHTML = `
+      <div class="copilot-ai-header"><span>✨</span> <span>QView Quantum Copilot</span></div>
+      <div style="display:flex;align-items:center;gap:0.5rem;color:var(--text-muted);font-size:0.82rem;">
+        <span class="progress-pulse"></span> Reasoning over CBOM & Quantum Risk Models...
+      </div>
+    `;
+    copilotBody.appendChild(loadingMsg);
+    copilotBody.scrollTop = copilotBody.scrollHeight;
+
+    try {
+      const res = await fetch('/api/copilot/query', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: queryText })
+      });
+      const data = await res.json();
+
+      // Format markdown-like bold and code
+      let formatted = (data.answer_markdown || '')
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\n- /g, '<br>• ')
+        .replace(/\n/g, '<br>');
+
+      let highlightsHtml = '';
+      if (data.highlights && data.highlights.length) {
+        highlightsHtml = `
+          <div class="copilot-chips-grid">
+            ${data.highlights.map(h => `
+              <div class="copilot-metric-chip">
+                <span class="cm-title">${h.title}</span>
+                <span class="cm-value">${h.value}</span>
+                <span class="cm-badge">${h.badge}</span>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      let playbookHtml = '';
+      if (data.action_playbook) {
+        playbookHtml = `
+          <div class="copilot-playbook-box">
+            <strong>🎯 Recommended Migration Playbook:</strong><br>
+            ${data.action_playbook}
+          </div>
+        `;
+      }
+
+      loadingMsg.innerHTML = `
+        <div class="copilot-ai-header"><span>✨</span> <span>QView Quantum Copilot</span></div>
+        <div class="copilot-ai-markdown">${formatted}</div>
+        ${highlightsHtml}
+        ${playbookHtml}
+      `;
+    } catch (err) {
+      loadingMsg.innerHTML = `
+        <div class="copilot-ai-header" style="color:var(--critical);"><span>⚠️</span> <span>Query Error</span></div>
+        <div class="copilot-ai-markdown">Failed to process query: ${err.message}</div>
+      `;
+    }
+
+    copilotBody.scrollTop = copilotBody.scrollHeight;
+    if (copilotInput) copilotInput.value = '';
+  }
+
+  // Esc closes copilot
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape' && copilotModal?.style.display !== 'none') closeCopilot();
+  });
 });

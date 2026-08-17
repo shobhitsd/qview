@@ -73,6 +73,12 @@
   </div>
 
   <div class="header-right">
+    <button class="btn btn-outline btn-copilot-hdr" id="btnOpenCopilot" title="Open AI Quantum Copilot & Natural Language Query Assistant">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+      <span>AI Copilot</span>
+      <span class="hdr-copilot-pill">V1</span>
+    </button>
+
     <button class="btn btn-outline" id="btnOpenGuide" title="Open Interactive User Guide & Framework Primer">
       <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
       <span>User Guide</span>
@@ -1121,6 +1127,57 @@
         <span class="guide-dot" data-guide-tab="tips"></span>
       </div>
       <button class="btn btn-primary" id="btnGuideNext">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════ AI Quantum Copilot Modal (V1) ══════════════════════ -->
+<div class="copilot-modal-overlay" id="copilotModal" style="display:none;">
+  <div class="copilot-modal-card">
+    <div class="copilot-modal-header">
+      <div class="copilot-header-brand">
+        <div class="copilot-avatar">✨</div>
+        <div>
+          <div class="copilot-title-row">
+            <h2 class="copilot-title">QView AI Quantum Copilot</h2>
+            <span class="badge-copilot-v1">Agent 37 · V1</span>
+          </div>
+          <p class="copilot-subtitle">Deterministic Natural-Language Query Engine &amp; PQC Risk Simulator</p>
+        </div>
+      </div>
+      <button class="modal-close-btn" id="btnCloseCopilot">✕</button>
+    </div>
+
+    <!-- Suggested Quick Prompts -->
+    <div class="copilot-prompts-bar">
+      <span class="prompts-label">Quick Prompts:</span>
+      <div class="prompts-chips-scroll" id="copilotSuggestedChips">
+        <button class="prompt-chip" data-query="Show all critical applications using quantum-vulnerable cryptography">🚨 Critical P1 Vulnerabilities</button>
+        <button class="prompt-chip" data-query="Which systems protect data that must remain confidential for more than 10 years?">⏳ HNDL Data Longevity (>10yr)</button>
+        <button class="prompt-chip" data-query="What would happen if we had to migrate RSA within two years?">⚡ Simulate 2-Year Migration</button>
+        <button class="prompt-chip" data-query="Give me the top PQC migration candidates and replacement playbooks">🛡️ NIST FIPS Mappings</button>
+        <button class="prompt-chip" data-query="Summarize overall enterprise quantum readiness, QRI score, and compliance gaps">👔 Executive CISO Briefing</button>
+      </div>
+    </div>
+
+    <!-- Copilot Conversation & Result Body -->
+    <div class="copilot-body" id="copilotBody">
+      <div class="copilot-welcome-state">
+        <div class="copilot-welcome-icon">🔮</div>
+        <h3>Ask Anything About Your Enterprise Cryptography &amp; Quantum Risk</h3>
+        <p>Query your CBOM inventory, simulate migration timelines, analyze Mosca HNDL exposure, or request code remediation snippets with 100% mathematical evidence and zero hallucinations.</p>
+      </div>
+    </div>
+
+    <!-- Copilot Input Bar -->
+    <div class="copilot-footer">
+      <form class="copilot-input-form" id="copilotForm">
+        <input type="text" id="copilotInput" class="copilot-input-field" placeholder="Ask a question or select a quick prompt above (e.g. 'Show all RSA-2048 keys', 'HNDL risk')..." autocomplete="off">
+        <button type="submit" class="btn btn-primary btn-copilot-send" id="btnCopilotSend">
+          <span>Query</span>
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
+      </form>
     </div>
   </div>
 </div>

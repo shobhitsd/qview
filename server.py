@@ -14,6 +14,7 @@ from scanners.repo_orchestrator import RepoOrchestrator
 from core.cbom_engine import CBOMBuilder
 from core.knowledge_graph import CryptoKnowledgeGraph
 from core.compliance_engine import ComplianceEngine
+from core.copilot_engine import QuantumCopilotEngine
 
 PORT = 8765
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -182,6 +183,10 @@ class QViewHandler(http.server.SimpleHTTPRequestHandler):
                 "findings_count": len(latest_assessment.findings) if latest_assessment else 0,
             })
 
+        # ── GET /api/copilot/prompts ───────────────────────────────────────
+        elif path == "/api/copilot/prompts":
+            self.send_json_response({"prompts": QuantumCopilotEngine.SUGGESTED_PROMPTS})
+
         # ── Static files ───────────────────────────────────────────────────
         else:
             super().do_GET()
@@ -219,8 +224,27 @@ class QViewHandler(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 self.send_json_response({"error": str(e)}, status=500)
 
+        # ── POST /api/copilot/query ─────────────────────────────────────────
+        elif path == "/api/copilot/query":
+            try:
+                self._ensure_assessment()
+                query_text = data.get("query", "")
+                result = QuantumCopilotEngine.answer_query(query_text, latest_assessment)
+                self.send_json_response(result)
+            except Exception as e:
+                self.send_json_response({"error": str(e)}, status=500)
+
         else:
             self.send_json_response({"error": "Endpoint not found"}, status=404)
+
+    def _ensure_assessment(self):
+        global latest_assessment
+        if not latest_assessment:
+            latest_assessment = orchestrator.scan_target(
+                SAMPLE_DIR,
+                app_name="Sentara-Enterprise-Sample",
+                coverage_pct=0.92
+            )
 
     def _get_assessment_data(self) -> Dict[str, Any]:
         global latest_assessment

@@ -20,6 +20,7 @@ from scanners.certificate_scanner import CertificateScanner
 from scanners.dependency_scanner import DependencyScanner
 from scanners.secrets_scanner import SecretsScanner
 from scanners.network_scanner import NetworkScanner
+from scanners.cloud_scanner import CloudCryptoScanner
 
 
 class RepoOrchestrator:
@@ -38,6 +39,7 @@ class RepoOrchestrator:
         self.dep_scanner     = DependencyScanner()
         self.secrets_scanner = SecretsScanner()
         self.net_scanner     = NetworkScanner()
+        self.cloud_scanner   = CloudCryptoScanner()
 
     def scan_target(
         self,
@@ -151,6 +153,7 @@ class RepoOrchestrator:
         results.extend(self.dep_scanner.scan_file(file_path))
         results.extend(self.secrets_scanner.scan_file(file_path))
         results.extend(self.net_scanner.scan_file(file_path))
+        results.extend(self.cloud_scanner.scan_file(file_path))
         return results
 
     @staticmethod
