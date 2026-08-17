@@ -1,0 +1,55 @@
+// application.yml — Sentara Healthcare Backend Configuration
+// CRITICAL: Multiple cryptographic misconfigurations detected
+
+server:
+  port: 8443
+  ssl:
+    enabled: true
+    key-store: classpath:sentara-keystore.jks
+    key-store-password: "Sentara@2024!"       # HARDCODED: Keystore password in config
+    key-store-type: JKS
+    key-alias: sentara-healthcare
+    protocol: TLS
+    enabled-protocols: TLSv1,TLSv1.1,TLSv1.2  # CRITICAL: TLS 1.0 and 1.1 enabled
+    ciphers: TLS_RSA_WITH_AES_128_CBC_SHA256,TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256,RC4-SHA  # CRITICAL: RC4 included
+
+# JWT Configuration
+jwt:
+  secret: "QXV0aGVudGljYXRpb25TZWN1cml0eUtleVNlbnRhcmEyMDI0" # HARDCODED JWT secret
+  algorithm: RS256
+  expiration: 86400
+  key-size: 1024    # CRITICAL: RSA-1024 is classically broken
+
+# Database encryption
+database:
+  encryption:
+    enabled: true
+    algorithm: AES128   # MEDIUM: Should be AES-256 for PHI
+    key-rotation: false  # CRITICAL: Key rotation disabled
+
+# FHIR API TLS settings
+fhir:
+  api:
+    tls-version: TLSv1.2
+    verify-ssl: false    # CRITICAL: Certificate validation disabled
+    cipher-suite: TLS_RSA_WITH_AES_256_CBC_SHA   # CRITICAL: Static RSA key exchange
+
+# Hash settings for audit logs  
+audit:
+  hash-algorithm: MD5   # CRITICAL: MD5 is collision-broken
+  signature-algorithm: SHA1withRSA  # CRITICAL: SHA-1 deprecated
+
+# Encryption at rest
+storage:
+  encryption:
+    kms-key-rotation: false    # CRITICAL: KMS rotation disabled
+    algorithm: AES-128-CBC     # MEDIUM: Should be AES-256-GCM
+
+# AWS configuration
+aws:
+  access-key-id: AKIAIOSFODNN7EXAMPLE   # CRITICAL: Hardcoded AWS access key
+  secret-access-key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY
+  region: us-east-1
+  kms:
+    key-id: "arn:aws:kms:us-east-1:123456789:key/abc123"
+    enable-key-rotation: false   # CRITICAL: Rotation disabled

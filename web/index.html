@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QView — Enterprise Quantum Readiness & CBOM Platform | Qdrishti</title>
+  <meta name="description" content="Enterprise Quantum Readiness & CBOM Intelligence Platform. Discover, assess, and migrate cryptographic assets with evidence-backed risk scoring.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div class="overlay-loading" id="loadingOverlay">
+  <div class="loader-backdrop"></div>
+  <div class="loader-content">
+    <div class="loader-quantum-orb">
+      <div class="orb-ring ring-1"></div>
+      <div class="orb-ring ring-2"></div>
+      <div class="orb-core">Q</div>
+    </div>
+    <div class="loader-title">QView Quantum Intelligence</div>
+    <div class="loader-subtext" id="loadingStatus">Scanning cryptographic assets & dependencies...</div>
+    <div class="loader-progress-track">
+      <div class="loader-progress-bar" id="loaderBar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Header -->
+<header class="app-header">
+  <div class="header-left">
+    <div class="brand-logo-wrap">
+      <div class="brand-logo-orb">
+        <span>Q</span>
+      </div>
+      <div class="brand-info">
+        <div class="brand-title-row">
+          <span class="brand-name">QView</span>
+          <span class="brand-tag">Enterprise PQC</span>
+          <span class="pulse-status-dot" title="Live Telemetry Active"></span>
+        </div>
+        <div class="brand-subtitle">Quantum Readiness & CBOM Intelligence Platform</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-center">
+    <div class="quick-stats-bar">
+      <div class="quick-stat-item" title="Quantum Readiness Index (Higher = Better)">
+        <span class="qs-label">Readiness</span>
+        <span class="qs-value qri-stat" id="headerQri">--</span>
+      </div>
+      <div class="quick-stat-divider"></div>
+      <div class="quick-stat-item" title="Quantum Exposure Index (Lower = Safer)">
+        <span class="qs-label">Exposure</span>
+        <span class="qs-value qei-stat" id="headerQei">--</span>
+      </div>
+      <div class="quick-stat-divider"></div>
+      <div class="quick-stat-item" title="Mosca's Inequality Violations (X+Y > Z)">
+        <span class="qs-label">Mosca Alerts</span>
+        <span class="qs-value mosca-stat" id="headerMosca">--</span>
+      </div>
+      <div class="quick-stat-divider"></div>
+      <div class="quick-stat-item" title="Total Discovered Cryptographic Assets">
+        <span class="qs-label">Assets</span>
+        <span class="qs-value" id="headerAssets">--</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <button class="btn btn-outline" id="btnOpenGuide" title="Open Interactive User Guide & Framework Primer">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>User Guide</span>
+    </button>
+    
+    <button class="btn btn-outline" id="btnExportCbom" title="Export CycloneDX 1.6 Cryptographic Bill of Materials (CBOM)">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+      <span>Export CBOM</span>
+    </button>
+    
+    <button class="btn btn-primary" id="btnTriggerScan" title="Run Deep Cryptographic Discovery Scan">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
+      <span>Run Scan</span>
+    </button>
+  </div>
+</header>
+
+<!-- Scan Control Bar -->
+<div class="scan-toolbar">
+  <div class="scan-target-box">
+    <div class="scan-target-icon">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+    </div>
+    <div class="scan-input-wrapper">
+      <span class="scan-prefix">Scan Target:</span>
+      <input type="text" id="targetPathInput" class="scan-path-input" value="sample_data" placeholder="Path to code repository, microservice, or zip archive...">
+    </div>
+    <button class="btn btn-sm btn-primary" id="btnScanCustomPath">
+      <span>Scan</span>
+    </button>
+  </div>
+
+  <div class="scan-metadata-pills">
+    <div class="meta-pill" id="scanCoveragePill" title="Mathematical coverage confidence factor applied to Base QRI">
+      <span class="pill-label">Coverage:</span>
+      <span class="pill-value" id="scanCoverageVal">92%</span>
+    </div>
+    <div class="meta-pill" id="scanTargetPill">
+      <span class="pill-label">Active Workspace:</span>
+      <span class="pill-value" id="scanTargetName">Sentara Enterprise</span>
+    </div>
+  </div>
+</div>
+
+<!-- Scan Progress Bar -->
+<div class="scan-progress-wrap" id="scanProgressWrap">
+  <div class="scan-progress-header">
+    <div class="progress-stage-text">
+      <span class="progress-pulse"></span>
+      <span id="scanProgressLabel">Running AST semantic code analysis...</span>
+    </div>
+    <span class="progress-percent" id="scanProgressPct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="scanProgressFill"></div>
+  </div>
+</div>
+
+<!-- Navigation Tabs -->
+<nav class="nav-tabs-container">
+  <div class="nav-tabs-scroll">
+    <button class="tab-btn active" data-tab="tab-executive">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/></svg>
+      <span>Executive Overview</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-universe">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/><path d="M2 12h20"/></svg>
+      <span>Crypto Universe</span>
+      <span class="tab-badge" id="tabBadgeAssets">0</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-heatmap">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h4v4H3zM10 3h4v4h-4zM17 3h4v4h-4zM3 10h4v4H3zM10 10h4v4h-4zM17 10h4v4h-4zM3 17h4v4H3zM10 17h4v4h-4zM17 17h4v4h-4z"/></svg>
+      <span>Quantum Heatmap</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-compliance">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <span>Compliance Radar</span>
+      <span class="tab-badge badge-alert" id="tabBadgeViolations">0</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-migration">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <span>Migration Cockpit</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-graph">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+      <span>Knowledge Graph</span>
+    </button>
+    <button class="tab-btn" data-tab="tab-evidence">
+      <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      <span>Evidence Center</span>
+    </button>
+  </div>
+</nav>
+
+<main class="main-content">
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 1: EXECUTIVE OVERVIEW
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel active" id="tab-executive">
+    
+    <!-- Mosca Alert Banner -->
+    <div class="mosca-card" id="moscaBanner" style="display:none;">
+      <div class="mosca-indicator"></div>
+      <div class="mosca-body">
+        <div class="mosca-top-row">
+          <div class="mosca-title-group">
+            <span class="mosca-badge-pill">CRITICAL THREAT</span>
+            <h3 class="mosca-headline">Mosca's Inequality Violated: Immediate PQC Transition Required</h3>
+          </div>
+          <button class="btn btn-sm btn-danger" onclick="filterByMosca()">View Breached Assets</button>
+        </div>
+        <p class="mosca-description" id="moscaText">
+          Cryptographic assets protecting high-longevity data will remain confidential past the emergence of Cryptographically Relevant Quantum Computers (CRQCs). Adversaries are actively harvesting this traffic today for future retroactive decryption.
+        </p>
+        
+        <!-- Interactive Mosca Timeline Slider Simulation -->
+        <div class="mosca-simulator-box">
+          <div class="sim-header">
+            <span class="sim-title">Interactive Risk Horizon Simulator: <span class="formula-text">X (Data Life) + Y (Migration Time) > Z (CRQC Horizon)</span></span>
+          </div>
+          <div class="sim-controls">
+            <div class="sim-slider-group">
+              <label>Data Shelf-Life (X): <strong id="valMoscaX">15 yrs</strong></label>
+              <input type="range" id="sliderMoscaX" min="1" max="50" value="15" class="sim-range">
+            </div>
+            <div class="sim-slider-group">
+              <label>Migration Time (Y): <strong id="valMoscaY">3 yrs</strong></label>
+              <input type="range" id="sliderMoscaY" min="1" max="10" value="3" class="sim-range">
+            </div>
+            <div class="sim-slider-group">
+              <label>Time to CRQC (Z): <strong id="valMoscaZ">7 yrs</strong></label>
+              <input type="range" id="sliderMoscaZ" min="3" max="20" value="7" class="sim-range">
+            </div>
+            <div class="sim-verdict-box" id="simVerdict">
+              <span class="verdict-tag verdict-violated">VIOLATED (18 > 7)</span>
+              <span class="verdict-sub">Immediate Wave 1 Action</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Master Score Cards: QRI / QEI / CAI -->
+    <div class="score-cards-grid">
+      <!-- QRI CARD -->
+      <div class="hero-score-card qri-card">
+        <div class="score-card-top">
+          <div>
+            <div class="score-title" data-tooltip="Quantum Readiness Index (0-100): Enterprise preparedness composite across all 8 dimensions adjusted by coverage confidence.">
+              <span>QRI — Quantum Readiness</span>
+            </div>
+            <div class="score-subtext">Composite Preparedness Score</div>
+          </div>
+          <span class="score-badge-pill band-green" id="qriBand">Ready</span>
+        </div>
+
+        <div class="gauge-display-row">
+          <div class="radial-gauge-container">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="gauge-bg" cx="50" cy="50" r="42"/>
+              <circle class="gauge-val gauge-green" id="gaugeQRI" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-number" id="qriValue">--</span>
+              <span class="gauge-unit">/100</span>
+            </div>
+          </div>
+
+          <div class="score-detail-stats">
+            <div class="stat-line">
+              <span class="lbl">Base Score:</span>
+              <span class="val" id="baseQri">--</span>
+            </div>
+            <div class="stat-line">
+              <span class="lbl">Coverage Confidence:</span>
+              <span class="val text-primary" id="qriConfidence">--%</span>
+            </div>
+            <div class="stat-line">
+              <span class="lbl">NIST Target:</span>
+              <span class="val text-muted">90.0</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-thin-track">
+          <div class="progress-thin-fill fill-green" id="qriBar"></div>
+        </div>
+      </div>
+
+      <!-- QEI CARD -->
+      <div class="hero-score-card qei-card">
+        <div class="score-card-top">
+          <div>
+            <div class="score-title" data-tooltip="Quantum Exposure Index (0-100): Cumulative attack surface vulnerability to Shor's and Grover's algorithms. Lower is better.">
+              <span>QEI — Quantum Exposure</span>
+            </div>
+            <div class="score-subtext">Quantum Attack Surface Risk</div>
+          </div>
+          <span class="score-badge-pill band-red" id="qeiBand">Critical</span>
+        </div>
+
+        <div class="gauge-display-row">
+          <div class="radial-gauge-container">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="gauge-bg" cx="50" cy="50" r="42"/>
+              <circle class="gauge-val gauge-red" id="gaugeQEI" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-number" id="qeiValue">--</span>
+              <span class="gauge-unit">/100</span>
+            </div>
+          </div>
+
+          <div class="score-detail-stats">
+            <div class="stat-line">
+              <span class="lbl">Mosca Violations:</span>
+              <span class="val text-danger" id="moscaCount">--</span>
+            </div>
+            <div class="stat-line">
+              <span class="lbl">HNDL Critical Assets:</span>
+              <span class="val text-danger" id="hndlCount">--</span>
+            </div>
+            <div class="stat-line">
+              <span class="lbl">Vulnerability Level:</span>
+              <span class="val text-danger">High (Shor's)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-thin-track">
+          <div class="progress-thin-fill fill-red" id="qeiBar"></div>
+        </div>
+      </div>
+
+      <!-- CAI CARD -->
+      <div class="hero-score-card cai-card">
+        <div class="score-card-top">
+          <div>
+            <div class="score-title" data-tooltip="Cryptographic Agility Index (0-100): Ease of modular algorithm replacement without breaking application dependencies.">
+              <span>CAI — Crypto Agility</span>
+            </div>
+            <div class="score-subtext">Modular Upgrade Flexibility</div>
+          </div>
+          <span class="score-badge-pill band-blue" id="caiBand">Moderate</span>
+        </div>
+
+        <div class="gauge-display-row">
+          <div class="radial-gauge-container">
+            <svg width="100" height="100" viewBox="0 0 100 100">
+              <circle class="gauge-bg" cx="50" cy="50" r="42"/>
+              <circle class="gauge-val gauge-blue" id="gaugeCAI" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"/>
+            </svg>
+            <div class="gauge-center-text">
+              <span class="gauge-number" id="caiValue">--</span>
+              <span class="gauge-unit">/100</span>
+            </div>
+          </div>
+
+          <div class="score-detail-stats">
+            <div class="stat-line">
+              <span class="lbl">Hardcoded Secrets:</span>
+              <span class="val text-danger" id="hardcodedCount">--</span>
+            </div>
+            <div class="stat-line">
+              <span class="lbl">PQC-Ready Assets:</span>
+              <span class="val text-success" id="pqcReadyCount">--</span>
+            </div>
+            <div class="stat-line">
+              <span class="lbl">Provider Abstraction:</span>
+              <span class="val text-muted">Configurable</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="progress-thin-track">
+          <div class="progress-thin-fill fill-blue" id="caiBar"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick KPI Tiles Bar -->
+    <div class="kpi-tiles-grid">
+      <div class="kpi-tile">
+        <div class="kpi-icon-wrap icon-blue">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-val" id="totalAssets">--</div>
+          <div class="kpi-lbl">Total Cryptographic Assets</div>
+          <div class="kpi-sub" id="totalFiles">-- files analyzed</div>
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon-wrap icon-red">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-val text-danger" id="criticalCount">--</div>
+          <div class="kpi-lbl">Quantum Vulnerable</div>
+          <div class="kpi-sub">Shor's Break (RSA / ECC)</div>
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon-wrap icon-amber">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-val text-warning" id="mediumCount">--</div>
+          <div class="kpi-lbl">Medium Risk</div>
+          <div class="kpi-sub">Grover's (AES-128 / SHA-1)</div>
+        </div>
+      </div>
+
+      <div class="kpi-tile">
+        <div class="kpi-icon-wrap icon-green">
+          <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        </div>
+        <div class="kpi-content">
+          <div class="kpi-val text-success" id="safeCount">--</div>
+          <div class="kpi-lbl">Quantum Safe (PQC)</div>
+          <div class="kpi-sub">ML-KEM / ML-DSA / FIPS 203+</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2-Column Charts Row -->
+    <div class="charts-2col-grid">
+      
+      <!-- 8-DIMENSION RADAR CHART -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">8-Dimension Quantum Readiness Posture</h3>
+            <p class="panel-subtitle">Enterprise assessment vs NIST FIPS Target Baseline (100%)</p>
+          </div>
+          <div class="chart-legend-pills">
+            <span class="legend-pill pill-current">● Current Posture</span>
+            <span class="legend-pill pill-target">● NIST Benchmark</span>
+          </div>
+        </div>
+        
+        <div class="radar-chart-wrap">
+          <canvas id="qriRadarChart" height="260"></canvas>
+        </div>
+
+        <div class="dim-bars-mini-grid" id="dimBarsGrid"></div>
+      </div>
+
+      <!-- ALGORITHM DISTRIBUTION & TOP RISKS -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Cryptographic Algorithm Universe</h3>
+            <p class="panel-subtitle">Distribution of primitives across scanned repositories</p>
+          </div>
+        </div>
+
+        <div class="donut-and-bars-row">
+          <div class="donut-wrap">
+            <canvas id="riskDonutChart" width="130" height="130"></canvas>
+            <div class="donut-center-label">
+              <span class="d-val" id="donutTotalVal">--</span>
+              <span class="d-lbl">Assets</span>
+            </div>
+          </div>
+          <div class="risk-breakdown-custom" id="riskBreakdown"></div>
+        </div>
+
+        <div class="panel-divider"></div>
+
+        <div class="top-risks-header">
+          <span class="subhead-title">Highest Priority Vulnerabilities</span>
+          <button class="link-btn" onclick="switchTab('tab-universe')">View Full Universe →</button>
+        </div>
+        <div class="top-risks-compact-list" id="topFindingsList"></div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 2: CRYPTO UNIVERSE EXPLORER
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-universe">
+    
+    <div class="universe-toolbar">
+      <div class="search-input-pill">
+        <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="universeSearch" placeholder="Search by algorithm (RSA, ECC), file path, library, or rule ID... (Press '/' to focus)">
+        <span class="search-shortcut-badge">/</span>
+      </div>
+
+      <div class="filter-pills-row">
+        <button class="pill-filter active" data-filter-status="">All Assets</button>
+        <button class="pill-filter filter-critical" data-filter-status="CRITICAL_VULNERABLE">Critical Vulnerable</button>
+        <button class="pill-filter filter-warning" data-filter-status="MEDIUM_RISK">Medium Risk</button>
+        <button class="pill-filter filter-safe" data-filter-status="QUANTUM_SAFE">Quantum Safe</button>
+        <button class="pill-filter filter-mosca" data-filter-mosca="true">Mosca Violations</button>
+        <button class="pill-filter filter-hardcoded" data-filter-hardcoded="true">Hardcoded Secrets</button>
+      </div>
+
+      <div class="toolbar-right-actions">
+        <select class="select-clean" id="filterPrimitive">
+          <option value="">All Primitives</option>
+          <option value="signature">Digital Signature</option>
+          <option value="key-establishment">Key Establishment / KEM</option>
+          <option value="symmetric-encryption">Symmetric Cipher</option>
+          <option value="hash">Cryptographic Hash</option>
+          <option value="mac">Message Authentication (MAC)</option>
+          <option value="private-key">Private Key Material</option>
+          <option value="protocol">Network / TLS Protocol</option>
+        </select>
+        
+        <button class="btn btn-sm btn-outline" id="btnExportUniverseCsv" title="Export current filtered table to CSV">
+          <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          <span>CSV</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="table-results-counter">
+      Showing <strong id="universeShown">0</strong> of <strong id="universeTotal">0</strong> cryptographic findings
+    </div>
+
+    <!-- Data Table -->
+    <div class="quantum-table-wrapper">
+      <table class="quantum-data-table">
+        <thead>
+          <tr>
+            <th>Finding ID</th>
+            <th>Algorithm</th>
+            <th>Primitive</th>
+            <th>Key Size</th>
+            <th>Quantum Status</th>
+            <th>Location</th>
+            <th>QEI</th>
+            <th>CAI</th>
+            <th>HNDL Risk</th>
+            <th>Mosca</th>
+            <th>Target PQC Algorithm</th>
+            <th>Wave</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="universeTableBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 3: QUANTUM HEATMAP
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-heatmap">
+    <div class="heatmap-2col-layout">
+      
+      <!-- Interactive Grid Card -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title">Quantum Exposure & Criticality Matrix</h3>
+            <p class="panel-subtitle">Business Criticality (X-axis) × Quantum Exposure Index (Y-axis). Click any cell to inspect assets.</p>
+          </div>
+          <div class="heatmap-legend">
+            <span class="hm-dot hm-0"></span> Safe
+            <span class="hm-dot hm-1"></span> Moderate
+            <span class="hm-dot hm-2"></span> High
+            <span class="hm-dot hm-3"></span> Critical P1
+          </div>
+        </div>
+
+        <div class="heatmap-canvas-container">
+          <div class="heatmap-y-label">QUANTUM EXPOSURE INDEX (QEI) →</div>
+          <div class="heatmap-matrix-wrapper">
+            <div class="heatmap-x-label">BUSINESS CRITICALITY TIER (1 - 5) →</div>
+            <div class="heatmap-grid-new" id="heatmapGrid"></div>
+          </div>
+        </div>
+
+        <div class="heatmap-tips-box">
+          <div class="tip-icon">💡</div>
+          <div class="tip-text">
+            <strong>Triage Guidance:</strong> Top-right quadrant assets (Critical Business + High Quantum Exposure) represent immediate Wave 1 priorities under Mosca's Inequality and HNDL harvesting models.
+          </div>
+        </div>
+      </div>
+
+      <!-- Heatmap Drill-down Detail Panel -->
+      <div class="panel-card">
+        <div class="panel-header">
+          <div>
+            <h3 class="panel-title" id="heatmapDetailTitle">Select a cell to drill down</h3>
+            <p class="panel-subtitle" id="heatmapDetailSubtitle">Click any colored cell in the matrix</p>
+          </div>
+        </div>
+
+        <div class="drilldown-findings-list" id="heatmapFindingsList">
+          <div class="empty-drilldown-state">
+            <div class="empty-icon">🎯</div>
+            <p>Click on any matrix cell to filter cryptographic assets by risk & business criticality tier</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 4: COMPLIANCE RADAR
+  ══════════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-compliance">
+    
+    <div class="compliance-hero-card">
+      <div class="comp-hero-left">
+        <h3 class="comp-hero-title">Regulatory Cryptography & PQC Compliance</h3>
+        <p class="comp-hero-desc">
+          Automated compliance mapping against global quantum mandates: 
+          <strong>NIST SP 800-131A / FIPS 203-205, HIPAA §164.312, PCI-DSS 4.0, SEBI CSCRF §7.4, NSA CNSA 2.0, GDPR Art. 32, and QCCPA</strong>.
+        </p>
+      </div>
+      <div class="comp-hero-stats">
+        <div class="comp-stat-badge">
+          <span class="cs-num text-danger" id="complianceTotalViolations">--</span>
+          <span class="cs-lbl">Total Violations</span>
+        </div>
+        <div class="comp-stat-badge">
+          <span class="cs-num text-primary" id="complianceFwCount">7</span>
+          <span class="cs-lbl">Frameworks Audited</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Framework Cards Grid -->
+    <div class="compliance-cards-grid" id="complianceGrid"></div>
+
+    <!-- Violations Table -->
+    <div class="panel-card" style="margin-top:1.5rem;">
+      <div class="panel-header">
+        <div>
+          <h3 class="panel-title">Statutory Control Violations & Non-Compliance Log</h3>
+          <p class="panel-subtitle">Specific regulatory requirements breached by active cryptographic algorithms</p>
+        </div>
+      </div>
+
+      <div class="quantum-table-wrapper" style="border:none;">
+        <table class="quantum-data-table">
+          <thead>
+            <tr>
+              <th>Framework</th>
+              <th>Control Clause</th>
+              <th>Requirement Description</th>
+              <th>Algorithm</th>
+              <th>Severity</th>
+              <th>Source Location</th>
+            </tr>
+          </thead>
+          <tbody id="complianceViolationsBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 5: MIGRATION COCKPIT
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-migration">
+    
+    <!-- Migration Strategy Banner -->
+    <div class="migration-banner-card">
+      <div class="mb-content">
+        <h3>NIST Post-Quantum Cryptography Migration Waves (0 - 4)</h3>
+        <p>Phased transition roadmap mapping vulnerable classical primitives to approved FIPS 203 (ML-KEM), FIPS 204 (ML-DSA), and FIPS 205 (SLH-DSA) suites.</p>
+      </div>
+      
+      <div class="wave-summary-tiles">
+        <div class="w-tile wave-0-tile">
+          <span class="w-num" id="wave0Count">--</span>
+          <span class="w-name">Wave 0</span>
+          <span class="w-sub">Discovery</span>
+        </div>
+        <div class="w-tile wave-1-tile">
+          <span class="w-num" id="wave1Count">--</span>
+          <span class="w-name">Wave 1</span>
+          <span class="w-sub">Critical / HNDL</span>
+        </div>
+        <div class="w-tile wave-2-tile">
+          <span class="w-num" id="wave2Count">--</span>
+          <span class="w-name">Wave 2</span>
+          <span class="w-sub">High Priority</span>
+        </div>
+        <div class="w-tile wave-3-tile">
+          <span class="w-num" id="wave3Count">--</span>
+          <span class="w-name">Wave 3</span>
+          <span class="w-sub">Standard</span>
+        </div>
+        <div class="w-tile wave-4-tile">
+          <span class="w-num" id="wave4Count">--</span>
+          <span class="w-name">Wave 4</span>
+          <span class="w-sub">Legacy / Vendor</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Migration Waves Accordion List -->
+    <div class="migration-waves-container" id="migrationWaves"></div>
+
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 6: KNOWLEDGE GRAPH
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-graph">
+    <div class="panel-card graph-panel">
+      <div class="panel-header">
+        <div>
+          <h3 class="panel-title">Cryptographic Asset Topology & Dependency Graph</h3>
+          <p class="panel-subtitle">Interactive network mapping Services → Source Files → Crypto Libraries → Algorithms</p>
+        </div>
+        <div class="graph-controls-row">
+          <button class="btn btn-sm btn-outline" onclick="resetGraphView()">Reset View</button>
+          <span class="graph-legend-item"><span class="g-node-dot node-file"></span> Files</span>
+          <span class="graph-legend-item"><span class="g-node-dot node-algo-vuln"></span> Vulnerable Algo</span>
+          <span class="graph-legend-item"><span class="g-node-dot node-algo-safe"></span> PQC Safe</span>
+          <span class="graph-legend-item"><span class="g-node-dot node-lib"></span> Libraries</span>
+        </div>
+      </div>
+
+      <div class="graph-canvas-container">
+        <canvas id="knowledgeGraphCanvas"></canvas>
+        <div class="graph-tooltip" id="graphTooltip"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════════════
+       TAB 7: EVIDENCE CENTER
+  ═══════════════════════════════════════════════════════════════════════ -->
+  <div class="tab-panel" id="tab-evidence">
+    <div class="evidence-2col-layout">
+      
+      <!-- Finding Selector List -->
+      <div class="panel-card evidence-sidebar-card">
+        <div class="evidence-sidebar-header">
+          <div class="sidebar-title-row">
+            <span class="panel-title">Findings Index</span>
+            <span class="badge-count" id="evidenceFindingsCount">0</span>
+          </div>
+          <div class="search-input-pill" style="margin-top:0.6rem;">
+            <input type="text" id="evidenceSearch" placeholder="Filter findings...">
+          </div>
+        </div>
+        <div class="evidence-sidebar-list" id="evidenceList"></div>
+      </div>
+
+      <!-- Detailed Evidence Chain -->
+      <div class="panel-card evidence-main-card" id="evidenceDetail">
+        <div class="evidence-main-header">
+          <div class="ev-header-left">
+            <div class="ev-id-badge" id="evidenceId">Select a finding on the left</div>
+            <div class="ev-finding-id" id="evidenceFindingId">Deterministic Cryptographic Evidence Chain</div>
+          </div>
+          <div class="ev-header-actions" id="evidenceActions"></div>
+        </div>
+
+        <div class="evidence-content-container" id="evidenceSections">
+          <div class="empty-evidence-state">
+            <div class="empty-icon">🔬</div>
+            <h3>Deterministic Evidence Chain</h3>
+            <p>Select any cryptographic finding to inspect source code line evidence, mathematical quantum threat analysis, and automated PQC code replacement playbooks.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<!-- Interactive User Guide Modal -->
+<div class="guide-modal-overlay" id="guideModal" style="display:none;">
+  <div class="guide-modal-card">
+    <div class="guide-modal-header">
+      <div class="guide-modal-title-group">
+        <div class="guide-icon-badge">📖</div>
+        <div>
+          <h2 class="guide-modal-title">QView Quantum Readiness User Guide</h2>
+          <p class="guide-modal-sub">Enterprise Handbook: Discovery, Scoring Models, Mosca's Inequality, and PQC Migration</p>
+        </div>
+      </div>
+      <button class="modal-close-btn" id="btnCloseGuide">✕</button>
+    </div>
+
+    <div class="guide-modal-body">
+      
+      <div class="guide-section">
+        <h3>1. What is QView & CBOM?</h3>
+        <p>QView is an enterprise Cryptographic Bill of Materials (CBOM) and Quantum Readiness platform. It performs deterministic static code analysis, certificate audits, dependency checks, and network protocol discovery to identify quantum-vulnerable cryptography (RSA, ECC, Diffie-Hellman) without LLM hallucinations.</p>
+      </div>
+
+      <div class="guide-section">
+        <h3>2. Understanding the 3 Core Quantitative Indices</h3>
+        <div class="guide-cards-row">
+          <div class="guide-mini-card">
+            <div class="g-card-title text-success">QRI (Quantum Readiness Index)</div>
+            <p>A <strong>0 - 100</strong> composite readiness score. Measures your organization's transition progress across 8 weighted dimensions, multiplied by your scan coverage factor ($QRI = Base \times Coverage$). Higher is better (Target: 90+).</p>
+          </div>
+          <div class="guide-mini-card">
+            <div class="g-card-title text-danger">QEI (Quantum Exposure Index)</div>
+            <p>A <strong>0 - 100</strong> cumulative attack surface score. Measures asset vulnerability to Shor's and Grover's algorithms, data confidentiality lifetime, and business criticality. Lower is better (Target: &lt;20).</p>
+          </div>
+          <div class="guide-mini-card">
+            <div class="g-card-title text-primary">CAI (Crypto Agility Index)</div>
+            <p>A <strong>0 - 100</strong> agility score. Assesses how easily your cryptographic code can be updated without major architectural rewrites. Penalizes hardcoding and rewards provider abstraction.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="guide-section">
+        <h3>3. Mosca's Inequality & HNDL Risk</h3>
+        <p>Mosca's theorem dictates that if $X + Y > Z$, an organization is vulnerable to <strong>Harvest Now, Decrypt Later (HNDL)</strong> attacks today:</p>
+        <ul class="guide-bullet-list">
+          <li><strong>X (Data Shelf-Life):</strong> How long your sensitive data (EHR, PCI, PII, intellectual property) must remain confidential.</li>
+          <li><strong>Y (Migration Time):</strong> The estimated years required to re-engineer, test, and deploy PQC across all systems.</li>
+          <li><strong>Z (Time to Quantum Threat):</strong> The estimated years until Cryptographically Relevant Quantum Computers (CRQCs) emerge (typically 7 years).</li>
+        </ul>
+      </div>
+
+      <div class="guide-section">
+        <h3>4. Navigating the 7 Platform Views</h3>
+        <div class="guide-views-list">
+          <div><strong>1. Executive Overview:</strong> High-level CISO telemetry, animated score gauges, 8-dimension spider radar chart, and real-time Mosca risk simulator.</div>
+          <div><strong>2. Crypto Universe:</strong> Searchable cryptographic inventory with key sizes, locations, and direct CSV export.</div>
+          <div><strong>3. Quantum Heatmap:</strong> 4x4 matrix plotting business criticality against quantum exposure with instant cell drill-down.</div>
+          <div><strong>4. Compliance Radar:</strong> Real-time breach mapping for NIST SP 800-131A, HIPAA, PCI-DSS 4.0, SEBI CSCRF, and CNSA 2.0.</div>
+          <div><strong>5. Migration Cockpit:</strong> NIST FIPS 203/204/205 Wave 0–4 transition roadmap with step-by-step code playbooks.</div>
+          <div><strong>6. Knowledge Graph:</strong> Interactive 2D network canvas visualizing cryptographic dependencies.</div>
+          <div><strong>7. Evidence Center:</strong> IDE-style source code viewer with line provenance and AST semantic verification.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="guide-modal-footer">
+      <button class="btn btn-primary" id="btnGuideGotIt">Got it, Let's Start</button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
