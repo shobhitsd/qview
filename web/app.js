@@ -863,21 +863,44 @@ function toggleAccordion(header) {
 }
 
 // ═══════════════════════════════════════════════════════════════════
-// VIEW 6: KNOWLEDGE GRAPH (Corporate Day Theme Canvas)
+// VIEW 6: KNOWLEDGE GRAPH (Corporate Day Theme Canvas with Zoom & Pan)
 // ═══════════════════════════════════════════════════════════════════
+APP_STATE.graphZoom = 1.0;
+APP_STATE.graphPanX = 0;
+APP_STATE.graphPanY = 0;
+
+function zoomGraph(factor) {
+  const newZoom = Math.min(Math.max(APP_STATE.graphZoom * factor, 0.35), 3.0);
+  APP_STATE.graphZoom = Math.round(newZoom * 100) / 100;
+  updateGraphZoomDisplay();
+  if (APP_STATE.redrawGraph) APP_STATE.redrawGraph();
+}
+
+function updateGraphZoomDisplay() {
+  const lbl = $('graphZoomLevel');
+  if (lbl) {
+    lbl.textContent = `${Math.round(APP_STATE.graphZoom * 100)}%`;
+  }
+}
+
+function resetGraphView() {
+  APP_STATE.graphZoom = 1.0;
+  APP_STATE.graphPanX = 0;
+  APP_STATE.graphPanY = 0;
+  updateGraphZoomDisplay();
+  renderGraphView();
+}
+
 function renderGraphView() {
   const canvas = document.getElementById('knowledgeGraphCanvas');
   if (!canvas) return;
 
-  const ctx = canvas.getContext('2d');
   const dpr = window.devicePixelRatio || 1;
   const rect = canvas.getBoundingClientRect();
-  canvas.width = rect.width * dpr;
-  canvas.height = rect.height * dpr;
-  ctx.scale(dpr, dpr);
-
   const w = rect.width;
   const h = rect.height;
+
+  updateGraphZoomDisplay();
 
   const nodes = [];
   const edges = [];
@@ -888,14 +911,13 @@ function renderGraphView() {
   nodes.push(rootNode);
   nodeMap.set(rootNode.id, rootNode);
 
-  // Add file & algorithm nodes (reduce from 16 to 10 to reduce clutter)
+  // Add file & algorithm nodes (10 nodes for optimal spacing)
   APP_STATE.findings.slice(0, 10).forEach((f, idx) => {
     const fileId = `file-${idx}`;
     const algoId = `algo-${idx}`;
     const algoName = f.crypto_asset?.algorithm_variant || f.crypto_asset?.algorithm_family || 'Algo';
     const isVuln = f.quantum_status === 'CRITICAL_VULNERABLE';
 
-    // Increase radius to spread them out
     const angle = (idx / 10) * 2 * Math.PI;
     const fileRadius = 160 + (idx % 2) * 35;
     const algoRadius = 280 + (idx % 3) * 40;
@@ -931,8 +953,30 @@ function renderGraphView() {
   APP_STATE.graphNodes = nodes;
   APP_STATE.graphEdges = edges;
 
+  // Cleanup old canvas listeners via fresh replacement
+  const newCanvas = canvas.cloneNode(true);
+  canvas.parentNode.replaceChild(newCanvas, canvas);
+  newCanvas.width = rect.width * dpr;
+  newCanvas.height = rect.height * dpr;
+  const ctx = newCanvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  function screenToGraph(screenX, screenY) {
+    const cx = w / 2;
+    const cy = h / 2;
+    const gx = (screenX - cx - APP_STATE.graphPanX) / APP_STATE.graphZoom + cx;
+    const gy = (screenY - cy - APP_STATE.graphPanY) / APP_STATE.graphZoom + cy;
+    return { x: gx, y: gy };
+  }
+
   function drawGraph() {
     ctx.clearRect(0, 0, w, h);
+
+    ctx.save();
+    // Apply Pan & Zoom transformation relative to center
+    ctx.translate(w / 2 + APP_STATE.graphPanX, h / 2 + APP_STATE.graphPanY);
+    ctx.scale(APP_STATE.graphZoom, APP_STATE.graphZoom);
+    ctx.translate(-w / 2, -h / 2);
 
     // Draw Edges
     edges.forEach(e => {
@@ -960,66 +1004,75 @@ function renderGraphView() {
       ctx.textAlign = 'center';
       ctx.fillText(n.label, n.x, n.y + n.r + 14);
     });
+
+    ctx.restore();
   }
 
+  APP_STATE.redrawGraph = drawGraph;
   drawGraph();
 
-  // Drag and Drop Logic
-  let isDragging = false;
+  // Interaction State
+  let isDraggingNode = false;
+  let isPanningCanvas = false;
   let dragNode = null;
-
-  // Cleanup old listeners if render called multiple times
-  const newCanvas = canvas.cloneNode(true);
-  canvas.parentNode.replaceChild(newCanvas, canvas);
-  const newCtx = newCanvas.getContext('2d');
-  newCanvas.width = rect.width * dpr;
-  newCanvas.height = rect.height * dpr;
-  newCtx.scale(dpr, dpr);
-  // redirect context to new canvas
-  ctx.clearRect = newCtx.clearRect.bind(newCtx);
-  ctx.beginPath = newCtx.beginPath.bind(newCtx);
-  ctx.moveTo = newCtx.moveTo.bind(newCtx);
-  ctx.lineTo = newCtx.lineTo.bind(newCtx);
-  ctx.arc = newCtx.arc.bind(newCtx);
-  ctx.fill = newCtx.fill.bind(newCtx);
-  ctx.stroke = newCtx.stroke.bind(newCtx);
-  ctx.fillText = newCtx.fillText.bind(newCtx);
-  Object.defineProperty(ctx, 'strokeStyle', { set: (v) => newCtx.strokeStyle = v });
-  Object.defineProperty(ctx, 'fillStyle', { set: (v) => newCtx.fillStyle = v });
-  Object.defineProperty(ctx, 'lineWidth', { set: (v) => newCtx.lineWidth = v });
-  Object.defineProperty(ctx, 'font', { set: (v) => newCtx.font = v });
-  Object.defineProperty(ctx, 'textAlign', { set: (v) => newCtx.textAlign = v });
+  let startMouseX = 0;
+  let startMouseY = 0;
+  let initialPanX = 0;
+  let initialPanY = 0;
 
   newCanvas.addEventListener('mousedown', (e) => {
     const r = newCanvas.getBoundingClientRect();
-    const mx = (e.clientX - r.left);
-    const my = (e.clientY - r.top);
+    const mx = e.clientX - r.left;
+    const my = e.clientY - r.top;
+    const gpos = screenToGraph(mx, my);
+
+    // Hit test nodes
+    let hitNode = null;
     for (const n of nodes) {
-      const dx = mx - n.x;
-      const dy = my - n.y;
+      const dx = gpos.x - n.x;
+      const dy = gpos.y - n.y;
       if (dx * dx + dy * dy < (n.r + 10) * (n.r + 10)) {
-        isDragging = true;
-        dragNode = n;
-        newCanvas.style.cursor = 'grabbing';
+        hitNode = n;
         break;
       }
+    }
+
+    if (hitNode) {
+      isDraggingNode = true;
+      dragNode = hitNode;
+      newCanvas.style.cursor = 'grabbing';
+    } else {
+      isPanningCanvas = true;
+      startMouseX = mx;
+      startMouseY = my;
+      initialPanX = APP_STATE.graphPanX;
+      initialPanY = APP_STATE.graphPanY;
+      newCanvas.style.cursor = 'move';
     }
   });
 
   newCanvas.addEventListener('mousemove', (e) => {
-    if (isDragging && dragNode) {
-      const r = newCanvas.getBoundingClientRect();
-      dragNode.x = (e.clientX - r.left);
-      dragNode.y = (e.clientY - r.top);
+    const r = newCanvas.getBoundingClientRect();
+    const mx = e.clientX - r.left;
+    const my = e.clientY - r.top;
+
+    if (isDraggingNode && dragNode) {
+      const gpos = screenToGraph(mx, my);
+      dragNode.x = gpos.x;
+      dragNode.y = gpos.y;
+      drawGraph();
+    } else if (isPanningCanvas) {
+      const deltaX = mx - startMouseX;
+      const deltaY = my - startMouseY;
+      APP_STATE.graphPanX = initialPanX + deltaX;
+      APP_STATE.graphPanY = initialPanY + deltaY;
       drawGraph();
     } else {
-      const r = newCanvas.getBoundingClientRect();
-      const mx = (e.clientX - r.left);
-      const my = (e.clientY - r.top);
+      const gpos = screenToGraph(mx, my);
       let hover = false;
       for (const n of nodes) {
-        const dx = mx - n.x;
-        const dy = my - n.y;
+        const dx = gpos.x - n.x;
+        const dy = gpos.y - n.y;
         if (dx * dx + dy * dy < (n.r + 10) * (n.r + 10)) {
           hover = true;
           break;
@@ -1029,20 +1082,22 @@ function renderGraphView() {
     }
   });
 
-  const endDrag = () => {
-    isDragging = false;
+  const endInteraction = () => {
+    isDraggingNode = false;
+    isPanningCanvas = false;
     dragNode = null;
     newCanvas.style.cursor = 'default';
   };
-  newCanvas.addEventListener('mouseup', endDrag);
-  newCanvas.addEventListener('mouseleave', endDrag);
-  
-  // draw initial on new context
-  drawGraph();
-}
 
-function resetGraphView() {
-  renderGraphView();
+  newCanvas.addEventListener('mouseup', endInteraction);
+  newCanvas.addEventListener('mouseleave', endInteraction);
+
+  // Wheel Zoom
+  newCanvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.12 : 0.88;
+    zoomGraph(zoomFactor);
+  }, { passive: false });
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -1288,10 +1343,27 @@ function setupNavigation() {
   });
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === '/' && document.activeElement !== sInput) {
+    // Search focus '/'
+    if (e.key === '/' && document.activeElement !== sInput && document.activeElement?.tagName !== 'INPUT' && document.activeElement?.tagName !== 'TEXTAREA') {
       e.preventDefault();
       switchTab('tab-universe');
       sInput?.focus();
+      return;
+    }
+
+    // Graph Zoom shortcuts (+, -, 0) when graph tab is open
+    const graphPanel = $('tab-graph');
+    if (graphPanel && graphPanel.classList.contains('active') && document.activeElement?.tagName !== 'INPUT') {
+      if (e.key === '+' || e.key === '=') {
+        e.preventDefault();
+        zoomGraph(1.2);
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        zoomGraph(0.8);
+      } else if (e.key === '0') {
+        e.preventDefault();
+        resetGraphView();
+      }
     }
   });
 
